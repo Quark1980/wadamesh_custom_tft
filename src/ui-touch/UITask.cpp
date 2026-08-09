@@ -46948,9 +46948,8 @@ void UITask::begin(DisplayDriver* display, SensorManager* sensors, NodePrefs* no
     s_ui_rotation = LV_DISP_ROT_270;
 #endif
 #if defined(HELTEC_V4_GRID_CUSTOM)
-  // Custom Heltec V4 panel should always run landscape to use the full
-  // 480x320 viewport and avoid falling back to portrait-sized layout.
-  s_ui_rotation = LV_DISP_ROT_270;
+  // Custom Heltec V4 target should run in portrait.
+  s_ui_rotation = LV_DISP_ROT_NONE;
 #endif
 #if defined(HAS_TANMATSU)
     // MIPI-DSI panel is portrait-native (480x800); the device is used in landscape. badge-bsp's
@@ -47076,10 +47075,9 @@ void UITask::begin(DisplayDriver* display, SensorManager* sensors, NodePrefs* no
     g_lv.disp_drv.hor_res  = 480;
     g_lv.disp_drv.ver_res  = 222;
 #elif defined(HELTEC_V4_GRID_CUSTOM)
-  // Custom Heltec V4 runs fixed landscape. Keep LVGL in the same 480x320
-  // logical space so the entire UI tree can consume the full panel area.
-  g_lv.disp_drv.hor_res  = 480;
-  g_lv.disp_drv.ver_res  = 320;
+  // Custom Heltec V4 runs fixed portrait and uses the full 320x480 surface.
+  g_lv.disp_drv.hor_res  = 320;
+  g_lv.disp_drv.ver_res  = 480;
 #else
     // Landscape rotates the panel in HARDWARE (smooth — no per-pixel software
     // rotation each flush), so tell LVGL the already-rotated resolution and let
