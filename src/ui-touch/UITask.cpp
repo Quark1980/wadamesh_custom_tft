@@ -607,6 +607,16 @@ static void initTouchFontFallbacks() {
       break;
   }
   g_font_tab = lv_font_montserrat_16;
+#elif defined(HELTEC_V4_GRID_CUSTOM)
+  // Custom Heltec V4 TFT panel (480x320 landscape): use the same visual density
+  // as the closest existing larger-screen preset so text/chrome are not tiny.
+  // Keep this fixed profile so touch mapping stays unchanged.
+  s_ui_fscale = 140;
+  // This build enables 12/14/16/28 only (MeshCore lv_conf.h), so step up using
+  // available sizes instead of the 20/24 large-screen set.
+  g_font_12 = lv_font_montserrat_14;
+  g_font_14 = lv_font_montserrat_16;
+  g_font_16 = lv_font_montserrat_28;
 #elif CAP_LARGE_SCREEN
   // Crisp "UI size": render bigger by swapping in larger built-in Montserrat fonts (NOT by
   // upscaling a low-res frame). g_font_12/14/16 are what the whole UI draws with, so this scales
