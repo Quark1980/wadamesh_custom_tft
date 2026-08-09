@@ -1,0 +1,67 @@
+name: Upstream Sync (wadamesh)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/ALLFATHER-BV/wadamesh.git || true
+          git fetch upstream --prune
+
+      - name: Create sync branch
+        run: |
+          BRANCH="sync/upstream-$(date +%Y%m%d)"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          git checkout -b "$BRANCH"
+
+      - name: Merge upstream/main
+        id: merge
+        run: |
+          set -e
+          if git merge --no-edit upstream/main; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Merge conflict. Manual resolution required."
+            exit 1
+          fi
+
+      - name: Skip if no changes
+        run: |
+          if git diff --quiet origin/main...HEAD; then
+            echo "No upstream changes to sync."
+            exit 0
+          fi
+
+      - name: Push sync branch
+        run: |
+          git push origin "$BRANCH"
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH }}
+          base: main
+          title: "Sync upstream wadamesh"
+          body: |
+            Automated upstream sync from ALLFATHER-BV/wadamesh main.
+
+            Please review conflicts and custom env compatibility before merging.
+          labels: |
+            automation
+            upstream-sync
