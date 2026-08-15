@@ -607,6 +607,13 @@ static void initTouchFontFallbacks() {
       break;
   }
   g_font_tab = lv_font_montserrat_16;
+#elif defined(HELTEC_V4_GRID_CUSTOM)
+  // Custom Heltec V4 portrait baseline: one notch smaller than the prior custom
+  // profile while keeping readable density on 320x480.
+  s_ui_fscale = 120;
+  g_font_12 = lv_font_montserrat_12;
+  g_font_14 = lv_font_montserrat_14;
+  g_font_16 = lv_font_montserrat_16;
 #elif CAP_LARGE_SCREEN
   // Crisp "UI size": render bigger by swapping in larger built-in Montserrat fonts (NOT by
   // upscaling a low-res frame). g_font_12/14/16 are what the whole UI draws with, so this scales
@@ -46944,6 +46951,10 @@ void UITask::begin(DisplayDriver* display, SensorManager* sensors, NodePrefs* no
     // clipped). ROT_270 maps to panel rotation 3, matching the boot wordmark.
     s_ui_rotation = LV_DISP_ROT_270;
 #endif
+#if defined(HELTEC_V4_GRID_CUSTOM)
+  // Custom Heltec V4 target should run in portrait.
+  s_ui_rotation = LV_DISP_ROT_NONE;
+#endif
 #if defined(HAS_TANMATSU)
     // MIPI-DSI panel is portrait-native (480x800); the device is used in landscape. badge-bsp's
     // default rotation is 270 -> we run the UI landscape (logical 800x480) via LVGL sw-rotate.
@@ -47067,6 +47078,10 @@ void UITask::begin(DisplayDriver* display, SensorManager* sensors, NodePrefs* no
     // this board is never portrait.
     g_lv.disp_drv.hor_res  = 480;
     g_lv.disp_drv.ver_res  = 222;
+#elif defined(HELTEC_V4_GRID_CUSTOM)
+  // Custom Heltec V4 runs fixed portrait and uses the full 320x480 surface.
+  g_lv.disp_drv.hor_res  = 320;
+  g_lv.disp_drv.ver_res  = 480;
 #else
     // Landscape rotates the panel in HARDWARE (smooth — no per-pixel software
     // rotation each flush), so tell LVGL the already-rotated resolution and let
